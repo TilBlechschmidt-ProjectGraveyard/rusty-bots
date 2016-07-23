@@ -1,38 +1,5 @@
 use std::collections::HashMap;
-
-/// Default type to save coordinates.
-pub type Coordinate = i32;
-
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-    UpLeft,
-    UpRight,
-    DownLeft,
-    DownRight
-}
-
-/// Location in a `Map`.
-pub struct Position {
-    /// x component
-    pub x: Coordinate,
-    /// y component
-    pub y: Coordinate
-}
-
-impl Position {
-    /// Creates a new instance `Position`.
-    pub fn new(x: Coordinate, y: Coordinate) -> Position {
-        Position {
-            x: x,
-            y: y
-        }
-    }
-
-    //pub fn add()
-}
+use location::Location;
 
 pub enum TileType {
     Plain,
@@ -49,5 +16,5 @@ pub struct Map {
 }
 
 pub struct MapPart {
-    pub tiles: HashMap<Position, Tile>
+    pub tiles: HashMap<Location, Tile>
 }
