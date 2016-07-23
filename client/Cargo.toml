@@ -5,6 +5,6 @@ authors = ["Noah Peeters <noah.peeters@icloud.com>"]
 
 [dependencies]
 
-[dependencies.bots-lib]
-path = "../bots-lib"
+[dependencies.bots_lib]
+path = "../bots_lib"
 version = "*"

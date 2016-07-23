@@ -1,5 +1,5 @@
 [package]
-name = "bots-lib"
+name = "bots_lib"
 version = "0.1.0"
 authors = ["Noah Peeters <noah.peeters@icloud.com>"]
 

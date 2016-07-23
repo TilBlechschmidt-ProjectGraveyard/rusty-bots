@@ -1,0 +1,3 @@
+struct Game {
+    name: String
+}

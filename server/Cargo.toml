@@ -4,7 +4,9 @@ version = "0.1.0"
 authors = ["Noah Peeters <noah.peeters@icloud.com>"]
 
 [dependencies]
+libloading = "*"
+glob = "*"
 
-[dependencies.bots-lib]
-path = "../bots-lib"
+[dependencies.bots_lib]
+path = "../bots_lib"
 version = "*"

@@ -1,6 +1,5 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
+
+#[no_mangle]
+pub fn welcome() -> String {
+    "Hello2".to_string()
 }
