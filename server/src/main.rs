@@ -9,7 +9,7 @@ mod plugin_handler;
 fn main() {
     let mut plugins = plugin_handler::PluginHandler::new("user".to_string());
 
-    plugins.load("user1".to_string());
+    plugins.load("libuser1".to_string());
 
     let welcome_fn = plugins.get_symbol::<fn() -> String>("libuser1".to_string(), "welcome");
 
