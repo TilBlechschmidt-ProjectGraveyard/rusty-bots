@@ -7,6 +7,9 @@ extern crate glob;
 
 mod plugin_handler;
 
+use bots_lib::map::Map;
+
+
 const PLUGIN_PATH: &'static str = "user";
 const LIB_PREFIX: &'static str = "lib";
 
@@ -21,6 +24,8 @@ fn main() {
         let welcome_fn = plugins.get_symbol::<fn() -> String>(lib, "welcome");
         println!("{:?}", welcome_fn.unwrap()());
     }
+
+    let map = Map::new();
 
 
     println!("Hello, world!");

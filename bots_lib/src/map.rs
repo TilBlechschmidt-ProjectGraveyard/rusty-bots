@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
 
 const CHUNK_SIZE: Coordinate = 100;
+/// Default type of `Map` seeds.
+pub type Seed = usize;
 
 /// Default tile types for `Tiles`.
 #[allow(missing_docs)]
@@ -19,6 +21,15 @@ pub struct Tile {
     pub tile_type: TileType
 }
 
+impl Tile {
+    /// Returns a `Tile` with a given `TileType`.
+    pub fn new(tile_type: TileType) -> Tile {
+        Tile {
+            tile_type: tile_type
+        }
+    }
+}
+
 struct Chunk {
     tiles: HashMap<Location, Tile>
 }
@@ -31,51 +42,56 @@ impl Chunk {
     }
 }
 
+fn generate_tile(_loc: Location, _seed: Seed) -> Tile {
+    Tile::new(TileType::Plain) // TODO implement generator
+}
+
 
 /// The map in a game.
 pub struct Map {
-    chunk: HashMap<Location, Chunk>
-
-
+    seed: Seed,
+    chunks: HashMap<Location, Chunk>
 }
 
 impl Map {
     /// Creates an empty `Map`.
     pub fn new() -> Map {
         Map {
-            chunk: HashMap::new()
+            seed: 0, //TODO random seed
+            chunks: HashMap::new()
         }
     }
 
-    /// Inserts a tile in the tile structure of a `Map` at a given `Location`.
-    pub fn insert_tile(&mut self, loc: Location, tile: Tile) {
-        let chunk = self.chunk.entry(loc / CHUNK_SIZE).or_insert(Chunk::new());
-        chunk.tiles.insert(loc, tile);
+    /// Creates an empty `Map`.
+    pub fn from_seed(seed: Seed) -> Map {
+        Map {
+            seed: seed,
+            chunks: HashMap::new()
+        }
     }
 
     /// Returns a `&Tile` at a given `Location`.
-    pub fn get_tile(&self, loc: Location) -> Option<&Tile> {
-        self.chunk.get(&(loc / CHUNK_SIZE)).and_then(|chunk: _| {chunk.tiles.get(&loc)})
+    pub fn get_tile(&mut self, loc: Location) -> &Tile {
+        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert(Chunk::new());
+        chunk.tiles.entry(loc).or_insert(generate_tile(loc, self.seed))
     }
 
     /// Returns a `&mut Tile` at a given `Location`.
-    pub fn get_tile_mut(&mut self, loc: Location) -> Option<&mut Tile> {
-        self.chunk.get_mut(&(loc / CHUNK_SIZE)).and_then(|chunk: _| {chunk.tiles.get_mut(&loc)})
+    pub fn get_tile_mut(&mut self, loc: Location) -> &mut Tile {
+        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert(Chunk::new());
+        chunk.tiles.entry(loc).or_insert(generate_tile(loc, self.seed))
     }
 
     /// Returns a section of the map containing all `Tile`s with a maximum distance from a `Location`.
     #[allow(non_snake_case)]
-    pub fn get_map_section(&self, location: Location, radius: i32) -> HashMap<Location, Tile> {
+    pub fn get_map_section(&mut self, location: Location, radius: i32) -> HashMap<Location, Tile> {
         let mut result = HashMap::new();
 
         for Δx in -radius..radius+1 {
             for Δy in -radius..radius+1 {
                 let loc = location + (Δx, Δy);
                 if location.linear_distance_to(&loc) <= radius as Distance {
-                    match self.get_tile(loc) {
-                        Some(tile) => { result.insert(loc, tile.clone()); },
-                        None => {}
-                    }
+                    result.insert(loc, self.get_tile(loc).clone());
                 }
             }
         }
