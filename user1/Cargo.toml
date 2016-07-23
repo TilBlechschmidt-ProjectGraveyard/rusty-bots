@@ -4,3 +4,11 @@ version = "0.1.0"
 authors = ["Noah Peeters <noah.peeters@icloud.com>"]
 
 [dependencies]
+
+[dependencies.bots-lib]
+path = "../bots-lib"
+version = "*"
+
+[lib]
+name = "user1"
+crate_type = ["dylib"]
