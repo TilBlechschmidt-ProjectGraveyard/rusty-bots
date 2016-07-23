@@ -1,40 +1,5 @@
 use std::collections::HashMap;
-
-/// Default type to save coordinates.
-pub type Coordinate = i32;
-
-/// Default enum to save directions
-#[allow(missing_docs)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-    UpLeft,
-    UpRight,
-    DownLeft,
-    DownRight
-}
-
-/// Location in a `Map`.
-pub struct Position {
-    /// x component
-    pub x: Coordinate,
-    /// y component
-    pub y: Coordinate
-}
-
-impl Position {
-    /// Creates a new instance `Position`.
-    pub fn new(x: Coordinate, y: Coordinate) -> Position {
-        Position {
-            x: x,
-            y: y
-        }
-    }
-
-    //pub fn add()
-}
+use location::Location;
 
 /// Default tile types for `Tiles`;
 #[allow(missing_docs)]
@@ -51,31 +16,51 @@ pub struct Tile {
 }
 
 struct Chunk {
-    tiles: HashMap<Position, Tile>
+    tiles: HashMap<Location, Tile>
 }
 
 
 /// The map in a game
 pub struct Map {
-    chunk: HashMap<Position, Tile>
+    chunk: HashMap<Location, Chunk>
 
 
 }
 
 impl Map {
+    /// Creates an empty `Map`
     pub fn new() -> Map {
         Map {
             chunk: HashMap::new()
         }
     }
 
-    fn getTile(&self, loc: Position) {
-        self.chunk.get(loc / 100).tiles.get(loc)
+    
+    pub fn get_tile(&self, loc: Location) -> Option<&Tile> {
+        self.chunk.get(&(loc / 100)).and_then(|chunk: _| {chunk.tiles.get(&loc)})
+    }
+
+    pub fn get_tile_mut(&mut self, loc: Location) -> Option<&mut Tile> {
+        self.chunk.get_mut(&(loc / 100)).and_then(|chunk: _| {chunk.tiles.get_mut(&loc)})
+    }
+
+    pub fn get_map_section(&self, location: Location, radius: i32) {
+        for Δx in (-radius..radius+1) {
+            for Δy in (-radius..radius+1) {
+                let loc = location + (Δx, Δy);
+            }
+        }
     }
 }
 
 /// A part of a map that is visible
 pub struct MapSection {
     /// A `HashMap` for the `Tile`s
-    pub tiles: HashMap<Position, Tile>
+    pub tiles: HashMap<Location, Tile>
+}
+
+impl MapSection {
+    pub fn get_tile(&self, loc: Location) -> Option<&Tile> {
+        self.tiles.get(&loc)
+    }
 }
