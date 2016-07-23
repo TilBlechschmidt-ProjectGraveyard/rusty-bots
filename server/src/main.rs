@@ -7,7 +7,7 @@ extern crate glob;
 mod plugin_handler;
 
 fn main() {
-    let mut plugins = plugin_handler::PluginHandler::new("/Volumes/Data/Programming/rusty-bots/server/user".to_string());
+    let mut plugins = plugin_handler::PluginHandler::new("user".to_string());
 
     plugins.load("user1".to_string());
 
