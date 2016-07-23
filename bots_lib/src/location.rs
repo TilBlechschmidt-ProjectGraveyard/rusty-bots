@@ -5,6 +5,9 @@ use std::ops::Mul;
 /// Default type to save coordinates.
 pub type Coordinate = i32;
 
+/// Distance between two `Location`s
+pub type Distance = f32;
+
 pub enum Direction {
     Up,
     Down,
@@ -32,6 +35,20 @@ impl Location {
             x: x,
             y: y
         }
+    }
+
+    /// Calculate the distance between two arbitrary locations
+    #[allow(non_snake_case)]
+    pub fn linear_distance_to(&self, other: &Location) -> Distance {
+        let Δx = (self.x - other.x).abs() as Distance;
+        let Δy = (self.y - other.y).abs() as Distance;
+
+        ( Δx.powf(2.0) + Δy.powf(2.0) ).sqrt()
+    }
+
+    /// Calculate the walking distance (via pathfinding) between two arbitrary location
+    pub fn walking_distance_to(&self, _other: &Location) -> Distance {
+        unimplemented!()
     }
 }
 
