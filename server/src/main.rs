@@ -11,7 +11,7 @@ fn main() {
 
     plugins.load("user1".to_string());
 
-    let welcome_fn = plugins.get_symbol::<fn() -> String>("user1".to_string(), "welcome");
+    let welcome_fn = plugins.get_symbol::<fn() -> String>("libuser1".to_string(), "welcome");
 
     println!("{:?}", welcome_fn.unwrap()());
 
