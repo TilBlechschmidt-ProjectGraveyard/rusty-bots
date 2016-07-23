@@ -1,6 +1,4 @@
-use std::ops::Add;
-use std::ops::Div;
-use std::ops::Mul;
+use std::ops::{Add, Div, Mul};
 
 /// Default type to save coordinates.
 pub type Coordinate = i32;
@@ -10,6 +8,7 @@ pub type Distance = f32;
 
 /// Default enum to save directions
 #[allow(missing_docs)]
+#[derive(Debug, Copy, Clone)]
 pub enum Direction {
     Up,
     Down,
