@@ -2,6 +2,11 @@
 use libloading::os::unix::{Library, Symbol};
 use std::collections::HashMap;
 
+#[cfg(target_os="macos")]
+const LIB_POSTFIX: &'static str = ".dylib";
+#[cfg(target_os="linux")]
+const LIB_POSTFIX: &'static str = ".so";
+
 pub struct PluginHandler {
     plugins: HashMap<String, Library>,
     search_path: String
@@ -16,7 +21,7 @@ impl PluginHandler {
     }
 
     pub fn load(&mut self, name: String) -> bool {
-        match Library::new(self.search_path.clone() + "/" + &name + ".dylib") {
+        match Library::new(self.search_path.clone() + "/" + &name + LIB_POSTFIX) {
             Ok(plugin) => {
                 self.plugins.insert(name, plugin);
                 true
