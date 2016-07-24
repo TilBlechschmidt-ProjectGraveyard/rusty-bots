@@ -146,7 +146,7 @@ fn main() {
             let new_loc = *loc * SCALE + window_offset;
 
             if (new_loc.x > -(SCALE as i32) && new_loc.x < (width + (SCALE as u32)) as i32) && (new_loc.y > -(SCALE as i32) && new_loc.y < (height + (SCALE as u32)) as i32) {
-                let mut sprite = match tile.terrain_type {
+                let mut sprite = match *tile {
                     TileType::Plain => {
                         grass.to_sprite()
                     },

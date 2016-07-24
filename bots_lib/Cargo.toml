@@ -6,3 +6,5 @@ authors = ["Noah Peeters <noah.peeters@icloud.com>"]
 [dependencies]
 noise = "0.2.0"
 rand = "0.3.14"
+bincode = "0.5.9"
+rustc-serialize = "0.3.19"
