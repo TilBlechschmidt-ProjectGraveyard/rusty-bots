@@ -109,8 +109,6 @@ impl Map {
                 None => return false
             }
         }
-
-
         self.get_chunk(loc).creeps.push(id);
 
         true
@@ -209,9 +207,9 @@ impl Add for MapSection {
 }
 
 impl Sub for MapSection {
-    type Output = DeltaMap;
+    type Output = CustomMap<TileDelta>;
 
-    fn sub(self, _rhs: MapSection) -> DeltaMap {
+    fn sub(self, _rhs: MapSection) -> CustomMap<TileDelta> {
         let mut tiles: HashMap<Location, TileDelta> = self.tiles.iter().map(|(&loc, tile)| (loc, TileDelta::Removed(tile.clone()))).collect::<HashMap<_, _>>();
 
         for (&loc, tile) in _rhs.tiles.iter() {
@@ -228,22 +226,27 @@ impl Sub for MapSection {
                 }
             }
         }
-        DeltaMap::new(tiles)
+        CustomMap::new(tiles)
     }
 }
 
 /// The delata between to `MapSection`s.
 #[derive(Debug, Clone)]
-pub struct DeltaMap {
+pub struct CustomMap<T> {
     /// A `HashMap` containing the `Tile`s
-    pub tiles: HashMap<Location, TileDelta>
+    pub tiles: HashMap<Location, T>
 }
 
-impl DeltaMap {
+impl<T> CustomMap<T> {
     /// Returns a `DeltaMap`.
-    pub fn new(tiles: HashMap<Location, TileDelta>) -> DeltaMap {
-        DeltaMap {
+    pub fn new(tiles: HashMap<Location, T>) -> CustomMap<T> {
+        CustomMap {
             tiles: tiles
         }
+    }
+
+    /// Returns a `&Tile` at a given `Location`.
+    pub fn get_tile(&self, loc: Location) -> Option<&T> {
+        self.tiles.get(&loc)
     }
 }
