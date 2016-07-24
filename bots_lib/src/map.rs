@@ -103,15 +103,16 @@ impl Map {
         //         chunk.tiles.get(&loc).unwrap()
         //     }
         // }
-
-        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert(Chunk::new()); //TODO to slow
-        chunk.tiles.entry(loc).or_insert(generate_tile(loc, self.seed)) //TODO to slow
+        let seed = self.seed;
+        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new()); //TODO to slow
+        chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed)) //TODO to slow
     }
 
     /// Returns a `&mut Tile` at a given `Location`.
     pub fn get_tile_mut(&mut self, loc: Location) -> &mut Tile {
-        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert(Chunk::new());
-        chunk.tiles.entry(loc).or_insert(generate_tile(loc, self.seed))
+        let seed = self.seed;
+        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new());
+        chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
     }
 
     /// Returns a section of the map containing all `Tile`s with a maximum distance from a `Location`.

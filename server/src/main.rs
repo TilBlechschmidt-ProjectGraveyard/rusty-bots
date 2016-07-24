@@ -33,11 +33,11 @@ fn main() {
     let mut map = Map::new();
 
     for i in 0..100 {
-        println!("{:?}", i);
-        let map_section = map.get_map_section(Location::new(0, 0), 60);
+        // println!("{:?}", i);
+        let map_section = map.get_map_section(Location::new(i, 0), 60);
         // println!("{}", i);
-        // map_section.print();
-        // thread::sleep(Duration::from_millis(10))
+        map_section.print();
+        thread::sleep(Duration::from_millis(30))
     }
 
 
