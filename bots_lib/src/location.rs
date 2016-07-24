@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul};
+use std::ops::{Add, Div, Mul, Sub};
 
 /// Default type to save coordinates.
 pub type Coordinate = i32;
@@ -82,6 +82,15 @@ impl Add for Location {
     fn add(mut self, _rhs: Location) -> Location {
         self.x += _rhs.x;
         self.y += _rhs.y;
+        self
+    }
+}
+
+impl Sub for Location {
+    type Output = Location;
+    fn sub(mut self, _rhs: Location) -> Location {
+        self.x -= _rhs.x;
+        self.y -= _rhs.y;
         self
     }
 }
