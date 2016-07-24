@@ -1,3 +1,5 @@
+
+use std::ops::Add;
 use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
 use noise::{Brownian2, Seed, perlin2};
@@ -54,8 +56,6 @@ fn generate_tile(loc: Location, seed: u32) -> Tile { // TODO implement generator
     } else {
         Tile::new(TileType::Rock)
     }
-
-    // Tile::new(TileType::Rock)
 }
 
 
@@ -85,24 +85,6 @@ impl Map {
 
     /// Returns a `&Tile` at a given `Location`.
     pub fn get_tile(&mut self, loc: Location) -> &Tile {
-        // let chunk_loc = loc / CHUNK_SIZE;
-        // let optional_chunk = self.chunks.get(&chunk_loc);
-        // let chunk = match optional_chunk {
-        //     Some(chunk) => chunk,
-        //     None => {
-        //         self.chunks.insert(loc / CHUNK_SIZE, Chunk::new());
-        //         self.chunks.get(&chunk_loc).unwrap()
-        //     }
-        // };
-        //
-        // let optional_tile = chunk.tiles.get(&loc);
-        // match optional_tile {
-        //     Some(tile) => tile,
-        //     None => {
-        //         chunk.tiles.insert(loc, generate_tile(loc, self.seed));
-        //         chunk.tiles.get(&loc).unwrap()
-        //     }
-        // }
         let seed = self.seed;
         let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new());
         chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
@@ -133,27 +115,21 @@ impl Map {
             }
         }
         // println!("{:?}", self.chunks.keys().collect::<Vec<_>>();
-        MapSection::new(location, radius, result)
+        MapSection::new(result)
     }
 }
 
 /// A part of a map that is visible
 #[derive(Clone, Debug)]
 pub struct MapSection {
-    /// Center of the map section.
-    pub center: Location,
-    /// Radius of the map section.
-    pub radius: i32,
     /// A `HashMap` containing the `Tile`s
     pub tiles: HashMap<Location, Tile>
 }
 
 impl MapSection {
     /// Returns a `MapSection`.
-    pub fn new(center: Location, radius: i32, tiles: HashMap<Location, Tile>) -> MapSection {
+    pub fn new(tiles: HashMap<Location, Tile>) -> MapSection {
         MapSection {
-            center: center,
-            radius: radius,
             tiles: tiles
         }
     }
@@ -164,11 +140,11 @@ impl MapSection {
     }
 
     #[allow(non_snake_case, missing_docs)]
-    pub fn print(&self) {
-        for delta_y in -self.radius..self.radius+1 {
-            let mut line = String::with_capacity(self.radius as usize * 2 + 1);
-            for delta_x in -self.radius..self.radius+1 {
-                let loc = self.center + (delta_x, delta_y);
+    pub fn print(&self, center: Location, radius: i32) {
+        for delta_y in -radius..radius+1 {
+            let mut line = String::with_capacity(radius as usize * 2 + 1);
+            for delta_x in -radius..radius+1 {
+                let loc = center + (delta_x, delta_y);
                 line = line + match self.get_tile(loc) {
                     Some(tile) => {
                         match tile.tile_type {
@@ -182,5 +158,16 @@ impl MapSection {
             }
             println!("{}", line);
         }
+    }
+}
+
+impl Add for MapSection {
+    type Output = MapSection;
+
+    fn add(mut self, _rhs: MapSection) -> MapSection {
+        for (&other_loc, other_tile) in _rhs.tiles.iter() {
+            self.tiles.entry(other_loc).or_insert(other_tile.clone());
+        }
+        self
     }
 }
