@@ -104,8 +104,8 @@ impl Map {
         //     }
         // }
         let seed = self.seed;
-        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new()); //TODO to slow
-        chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed)) //TODO to slow
+        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new());
+        chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
     }
 
     /// Returns a `&mut Tile` at a given `Location`.
