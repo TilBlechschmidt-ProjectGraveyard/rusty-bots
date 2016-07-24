@@ -4,9 +4,13 @@ use std::ops::Add;
 use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
 use noise::{Brownian2, Seed, perlin2};
+use creep::ServerCreep;
 
 
 const CHUNK_SIZE: Coordinate = 10;
+
+/// Default type for object ids
+pub type ID = u64;
 
 /// Default tile types for `Tiles`.
 #[allow(missing_docs)]
@@ -15,6 +19,16 @@ pub enum TileType {
     Plain,
     Water,
     Rock
+}
+
+/// Default delta tile types.
+pub enum TileDelta {
+    /// A new tile was added.
+    New(TileType),
+    /// An existing tile was changed.
+    Changed(TileType),
+    /// A tile was removed.
+    Removed
 }
 
 /// A tile in a map.
@@ -35,13 +49,15 @@ impl Tile {
 
 #[derive(Clone, Debug)]
 struct Chunk {
-    tiles: HashMap<Location, Tile>
+    tiles: HashMap<Location, Tile>,
+    creeps: Vec<ID>
 }
 
 impl Chunk {
     fn new() -> Chunk {
         Chunk {
-            tiles: HashMap::new()
+            tiles: HashMap::new(),
+            creeps: Vec::new()
         }
     }
 }
@@ -65,7 +81,9 @@ fn generate_tile(loc: Location, seed: u32) -> Tile {
 #[derive(Clone, Debug)]
 pub struct Map {
     seed: u32,
-    chunks: HashMap<Location, Chunk>
+    chunks: HashMap<Location, Chunk>,
+    creeps: HashMap<ID, ServerCreep>,
+    last_id: ID
 }
 
 impl Map {
@@ -73,31 +91,59 @@ impl Map {
     pub fn new() -> Map {
         let seed = thread_rng().next_u32();
         println!("Generated map w/ seed {}", seed);
-        Map {
-            seed: seed,
-            chunks: HashMap::new()
-        }
+        Map::from_seed(seed)
     }
 
     /// Creates an empty `Map`.
     pub fn from_seed(seed: u32) -> Map {
         Map {
             seed: seed,
-            chunks: HashMap::new()
+            chunks: HashMap::new(),
+            creeps: HashMap::new(),
+            last_id: 0
         }
     }
 
-    /// Returns a `&Tile` at a given `Location`.
-    pub fn get_tile(&mut self, loc: Location) -> &Tile {
-        let seed = self.seed;
-        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new());
-        chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
+    /// Moves a creep to a given location
+    pub fn move_creep(&mut self, id: ID, loc: Location) -> bool {
+        let old_loc = {
+            match self.creeps.get_mut(&id) {
+                Some(creep) => {
+                    let old_loc = creep.location;
+                    creep.location = loc;
+                    old_loc
+                },
+                None => return false
+            }
+        };
+        {
+            let ref mut creeps = self.get_chunk(old_loc).creeps;
+            match creeps.iter().position(|&r| r == id) {
+                Some(index) => {creeps.swap_remove(index); },
+                None => return false
+            }
+        }
+
+
+        self.get_chunk(loc).creeps.push(id);
+
+        true
+    }
+
+    /// Returns the next free id
+    pub fn get_id(&mut self) -> ID {
+        self.last_id += 1;
+        return self.last_id
+    }
+
+    fn get_chunk(&mut self, loc: Location) -> &mut Chunk {
+        self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new())
     }
 
     /// Returns a `&mut Tile` at a given `Location`.
-    pub fn get_tile_mut(&mut self, loc: Location) -> &mut Tile {
+    pub fn get_tile(&mut self, loc: Location) -> &mut Tile {
         let seed = self.seed;
-        let chunk = self.chunks.entry(loc / CHUNK_SIZE).or_insert_with(|| Chunk::new());
+        let chunk = self.get_chunk(loc);
         chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
     }
 

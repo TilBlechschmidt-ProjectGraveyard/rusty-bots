@@ -11,7 +11,6 @@ use bots_lib::map::Map;
 use bots_lib::location::Location;
 use bots_lib::creep::Creep;
 
-use std::time::Duration;
 use std::thread;
 use std::sync::mpsc;
 
@@ -41,7 +40,8 @@ fn main() {
 
 
         let loc = Location::new(0, 0);
-        let creep = Creep::new(map.get_map_section(loc, 40), loc, tx.clone());
+        let map_section = map.get_map_section(loc, 40);
+        let creep = Creep::new(loc, tx.clone());
 
         let welcome_fn = plugins.get_symbol::<fn(Creep) -> usize>(user.to_string(), "welcome");
         println!("{:?}", welcome_fn.unwrap()(creep));
@@ -49,29 +49,25 @@ fn main() {
 
     println!("Map");
 
-    for i in 0..1 {
-        let loc = Location::new(i, 0);
-        let map_section = map.get_map_section(loc, 40);
-        let map_section = map_section + map.get_map_section(loc + (20, 0), 40);
-        map_section.print(loc, 40);
-        thread::sleep(Duration::from_millis(30));
-    }
+    // for i in 0..1 {
+    //     let loc = Location::new(i, 0);
+    //     let map_section = map.get_map_section(loc, 40);
+    //     let map_section = map_section + map.get_map_section(loc + (20, 0), 40);
+    //     map_section.print(loc, 40);
+    //     thread::sleep(Duration::from_millis(30));
+    // }
 
-    for user in users.iter() {
-        plugins.load(user.to_string());
-
-
-
-        let loc = Location::new(0, 0);
-        let creep = Creep::new(map.get_map_section(loc, 40), loc, tx.clone());
-
-        let welcome_fn = plugins.get_symbol::<fn(Creep) -> usize>(user.to_string(), "welcome");
-        println!("{:?}", welcome_fn.unwrap()(creep));
-    }
-
-    tx.send("stop".to_string()).unwrap();
-
-
+    // for user in users.iter() {
+    //     plugins.load(user.to_string());
+    //
+    //
+    //
+    //     let loc = Location::new(0, 0);
+    //     let creep = Creep::new(map.get_map_section(loc, 40), loc, tx.clone());
+    //
+    //     let welcome_fn = plugins.get_symbol::<fn(Creep) -> usize>(user.to_string(), "welcome");
+    //     println!("{:?}", welcome_fn.unwrap()(creep));
+    // }
 
     // println!("Hello, world!");
 }
