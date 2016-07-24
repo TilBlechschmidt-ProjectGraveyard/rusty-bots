@@ -20,14 +20,14 @@ pub enum TileType {
 #[derive(Clone, Debug)]
 pub struct Tile {
     /// The type of the tile.
-    pub tile_type: TileType
+    pub terrain_type: TileType
 }
 
 impl Tile {
     /// Returns a `Tile` with a given `TileType`.
-    pub fn new(tile_type: TileType) -> Tile {
+    pub fn new(terrain_type: TileType) -> Tile {
         Tile {
-            tile_type: tile_type
+            terrain_type: terrain_type
         }
     }
 }
@@ -176,7 +176,7 @@ impl MapSection {
                 let loc = self.center + (delta_x, delta_y);
                 line = line + match self.get_tile(loc) {
                     Some(tile) => {
-                        match tile.tile_type {
+                        match tile.terrain_type {
                             TileType::Plain => "__",
                             TileType::Water => "~~",
                             TileType::Rock => "##"
