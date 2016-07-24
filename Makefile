@@ -18,7 +18,7 @@ endif
 all: server
 
 run: server
-	cd server && target/release/server
+	cd server && $(CARGO) run $(CFLAGS)
 
 server: FORCE user1
 	cd server && \

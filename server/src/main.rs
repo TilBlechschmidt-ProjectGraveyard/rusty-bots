@@ -12,41 +12,56 @@ use bots_lib::location::Location;
 
 use std::time::Duration;
 use std::thread;
+use std::sync::mpsc;
 
 
 const PLUGIN_PATH: &'static str = "user";
-const LIB_PREFIX: &'static str = "lib";
 
 fn main() {
     let mut plugins = plugin_handler::PluginHandler::new(PLUGIN_PATH.to_string());
     let users = vec!["user1"];
 
-    for user in users {
-        let plugin_name = LIB_PREFIX.to_string() + user;
-        let plugin = plugins.load(plugin_name.clone());
-        let welcome_fn = plugin.unwrap().get_welcome().unwrap();
+    let (tx, rx) = mpsc::channel::<String>();
 
-        // let welcome_fn = plugins.get_symbol::<fn() -> String>(lib, "welcome");
-        unsafe {
-            println!("{:?}", welcome_fn());
+    thread::spawn(move || {
+        loop {
+            match rx.recv() {
+                Ok(msg) => println!("{:?}", msg),
+                _ => break
+            }
         }
-        // welcome_fn
+    });
+
+    for user in users.iter() {
+        plugins.load(user.to_string());
+
+
+        let welcome_fn = plugins.get_symbol::<fn(mpsc::Sender<String>) -> usize>(user.to_string(), "welcome");
+        // let _ = welcome_fn.unwrap()();
+        println!("{:?}", welcome_fn.unwrap()(tx.clone()));
     }
 
-    // plugins.reset();
-
     println!("Map");
-    // let mut map = Map::new();
-    //
-    // for i in 0..100 {
-    //     // println!("{:?}", i);
-    //     let map_section = map.get_map_section(Location::new(i, 0), 40);
-    //     // println!("{}", i);
-    //     map_section.print();
-    //     thread::sleep(Duration::from_millis(30))
-    // }
+    let mut map = Map::new();
+
+    for i in 0..800 {
+        // println!("{:?}", i);
+        let map_section = map.get_map_section(Location::new(i, 0), 40);
+        // println!("{}", i);
+        map_section.print();
+        thread::sleep(Duration::from_millis(30));
+    }
+
+    for user in users.iter() {
+        plugins.load(user.to_string());
+
+        let welcome_fn = plugins.get_symbol::<fn(mpsc::Sender<String>) -> usize>(user.to_string(), "welcome");
+        // let _ = welcome_fn.unwrap()();
+        println!("{:?}", welcome_fn.unwrap()(tx.clone()));
+    }
+    tx.send("stop".to_string()).unwrap();
 
 
 
-    println!("Hello, world!");
+    // println!("Hello, world!");
 }

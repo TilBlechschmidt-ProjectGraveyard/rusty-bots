@@ -174,7 +174,7 @@ impl MapSection {
                         match tile.tile_type {
                             TileType::Plain => "__",
                             TileType::Water => "~~",
-                            TileType::Rock => "delta_delta_"
+                            TileType::Rock => "##"
                         }
                     },
                     None => "  "
