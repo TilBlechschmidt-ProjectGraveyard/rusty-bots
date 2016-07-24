@@ -8,6 +8,8 @@ extern crate find_folder;
 extern crate gfx;
 extern crate bots_lib;
 
+use std::cmp;
+
 use std::rc::Rc;
 use std::path::PathBuf;
 use gfx::Factory;
@@ -93,26 +95,7 @@ fn main() {
 
     let mut map = Map::new();
     let map_section = map.get_map_section(Location::new(0, 0), 60);
-    let map_section = map_section + map.get_map_section(Location::new(0, 50), 60);
-    for loc in map_section.tiles.keys() {
-        let tile = map_section.tiles.get(loc).unwrap();
-        let mut sprite = match tile.terrain_type {
-            TileType::Plain => {
-                grass.to_sprite()
-            },
-            TileType::Rock => {
-                rock.to_sprite()
-            },
-            TileType::Water => {
-                water.to_sprite()
-            }
-        };
-        let sprite_size = sprite.bounding_box()[2];
-        let new_loc = *loc * 10 + window_offset;
-        sprite.set_scale(SCALE / sprite_size, SCALE / sprite_size);
-        sprite.set_position(new_loc.x as f64, new_loc.y as f64);
-        scene.add_child(sprite);
-    }
+    let map_section = map_section + map.get_map_section(Location::new(50, 0), 60);
 
 
 
@@ -153,11 +136,38 @@ fn main() {
     // scene.run(id, &Action(Ease(EaseFunction::QuadraticInOut, Box::new(Animation::MoveTo(2.0, 500.0, 500.0)))));
     // scene.child_mut(id).unwrap().set_position(20.0, 20.0);
 
+    let mut tile_ids = Vec::new();
     while let Some(e) = window.next() {
+        for _ in 0..tile_ids.len() {
+            scene.remove_child(tile_ids.pop().unwrap()).unwrap();
+        }
+        for loc in map_section.tiles.keys() {
+            let tile = map_section.tiles.get(loc).unwrap();
+            let new_loc = *loc * SCALE + window_offset;
+
+            if (new_loc.x > -(SCALE as i32) && new_loc.x < (width + (SCALE as u32)) as i32) && (new_loc.y > -(SCALE as i32) && new_loc.y < (height + (SCALE as u32)) as i32) {
+                let mut sprite = match tile.terrain_type {
+                    TileType::Plain => {
+                        grass.to_sprite()
+                    },
+                    TileType::Rock => {
+                        rock.to_sprite()
+                    },
+                    TileType::Water => {
+                        water.to_sprite()
+                    }
+                };
+                let sprite_size = sprite.bounding_box()[2];
+                sprite.set_scale(SCALE / sprite_size, SCALE / sprite_size);
+                sprite.set_position(new_loc.x as f64, new_loc.y as f64);
+                tile_ids.push(scene.add_child(sprite));
+            }
+        }
+
         scene.event(&e);
 
         window.draw_2d(&e, |c, g| {
-            clear([1.0, 1.0, 1.0, 1.0], g);
+            clear([38.0 / 255.0, 50.0 / 255.0, 56.0 / 255.0, 1.0], g);
             scene.draw(c.transform, g);
         });
         // if let Some(_) = e.press_args() {
