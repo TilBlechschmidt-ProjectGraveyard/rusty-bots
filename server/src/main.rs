@@ -34,6 +34,8 @@ fn main() {
 
     let mut map = Map::new();
 
+    println!("{:?}", map.get_map_section(Location::new(0, 0), 1) - map.get_map_section(Location::new(1, 0), 1));
+
     for user in users.iter() {
         plugins.load(user.to_string());
 

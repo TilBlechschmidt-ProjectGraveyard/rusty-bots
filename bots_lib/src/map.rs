@@ -1,5 +1,5 @@
 use rand::{Rng, thread_rng};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
@@ -14,7 +14,7 @@ pub type ID = u64;
 
 /// Default tile types for `Tiles`.
 #[allow(missing_docs)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TileType {
     Plain,
     Water,
@@ -22,34 +22,20 @@ pub enum TileType {
 }
 
 /// Default delta tile types.
+#[derive(Debug, Clone)]
 pub enum TileDelta {
     /// A new tile was added.
     New(TileType),
     /// An existing tile was changed.
     Changed(TileType),
     /// A tile was removed.
-    Removed
+    Removed(TileType)
 }
 
-/// A tile in a map.
-#[derive(Clone, Debug)]
-pub struct Tile {
-    /// The type of the tile.
-    pub terrain_type: TileType
-}
-
-impl Tile {
-    /// Returns a `Tile` with a given `TileType`.
-    pub fn new(terrain_type: TileType) -> Tile {
-        Tile {
-            terrain_type: terrain_type
-        }
-    }
-}
 
 #[derive(Clone, Debug)]
 struct Chunk {
-    tiles: HashMap<Location, Tile>,
+    tiles: HashMap<Location, TileType>,
     creeps: Vec<ID>
 }
 
@@ -62,17 +48,17 @@ impl Chunk {
     }
 }
 
-fn generate_tile(loc: Location, seed: u32) -> Tile {
+fn generate_tile(loc: Location, seed: u32) -> TileType {
     let seed = Seed::new(seed);
     let noise = Brownian2::new(perlin2, 4).wavelength(64.0);
     let val = noise.apply(&seed, &[loc.x as f32, loc.y as f32]);
 
     if val < 0.0 {
-        Tile::new(TileType::Water)
+        TileType::Water
     } else if val < 0.4 {
-        Tile::new(TileType::Plain)
+        TileType::Plain
     } else {
-        Tile::new(TileType::Rock)
+        TileType::Rock
     }
 }
 
@@ -141,7 +127,7 @@ impl Map {
     }
 
     /// Returns a `&mut Tile` at a given `Location`.
-    pub fn get_tile(&mut self, loc: Location) -> &mut Tile {
+    pub fn get_tile(&mut self, loc: Location) -> &mut TileType {
         let seed = self.seed;
         let chunk = self.get_chunk(loc);
         chunk.tiles.entry(loc).or_insert_with(|| generate_tile(loc, seed))
@@ -173,19 +159,19 @@ impl Map {
 #[derive(Clone, Debug)]
 pub struct MapSection {
     /// A `HashMap` containing the `Tile`s
-    pub tiles: HashMap<Location, Tile>
+    pub tiles: HashMap<Location, TileType>
 }
 
 impl MapSection {
     /// Returns a `MapSection`.
-    pub fn new(tiles: HashMap<Location, Tile>) -> MapSection {
+    pub fn new(tiles: HashMap<Location, TileType>) -> MapSection {
         MapSection {
             tiles: tiles
         }
     }
 
     /// Returns a `&Tile` at a given `Location`.
-    pub fn get_tile(&self, loc: Location) -> Option<&Tile> {
+    pub fn get_tile(&self, loc: Location) -> Option<&TileType> {
         self.tiles.get(&loc)
     }
 
@@ -197,10 +183,10 @@ impl MapSection {
                 let loc = center + (delta_x, delta_y);
                 line = line + match self.get_tile(loc) {
                     Some(tile) => {
-                        match tile.terrain_type {
-                            TileType::Plain => "__",
-                            TileType::Water => "~~",
-                            TileType::Rock => "##"
+                        match tile {
+                            &TileType::Plain => "__",
+                            &TileType::Water => "~~",
+                            &TileType::Rock => "##"
                         }
                     },
                     None => "  "
@@ -219,5 +205,45 @@ impl Add for MapSection {
             self.tiles.entry(other_loc).or_insert(other_tile.clone());
         }
         self
+    }
+}
+
+impl Sub for MapSection {
+    type Output = DeltaMap;
+
+    fn sub(self, _rhs: MapSection) -> DeltaMap {
+        let mut tiles: HashMap<Location, TileDelta> = self.tiles.iter().map(|(&loc, tile)| (loc, TileDelta::Removed(tile.clone()))).collect::<HashMap<_, _>>();
+
+        for (&loc, tile) in _rhs.tiles.iter() {
+            match self.tiles.get(&loc) {
+                Some(old_tile) => {
+                    if old_tile != tile {
+                        tiles.insert(loc, TileDelta::Changed(tile.clone()));
+                    } else {
+                        tiles.remove(&loc);
+                    }
+                },
+                None => {
+                    tiles.insert(loc, TileDelta::New(tile.clone()));
+                }
+            }
+        }
+        DeltaMap::new(tiles)
+    }
+}
+
+/// The delata between to `MapSection`s.
+#[derive(Debug, Clone)]
+pub struct DeltaMap {
+    /// A `HashMap` containing the `Tile`s
+    pub tiles: HashMap<Location, TileDelta>
+}
+
+impl DeltaMap {
+    /// Returns a `DeltaMap`.
+    pub fn new(tiles: HashMap<Location, TileDelta>) -> DeltaMap {
+        DeltaMap {
+            tiles: tiles
+        }
     }
 }
