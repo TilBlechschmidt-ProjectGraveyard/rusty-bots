@@ -22,23 +22,29 @@ fn main() {
     let users = vec!["user1"];
 
     for user in users {
-        let lib = LIB_PREFIX.to_string() + user;
-        plugins.load(lib.clone());
+        let plugin_name = LIB_PREFIX.to_string() + user;
+        let plugin = plugins.load(plugin_name.clone());
+        let welcome_fn = plugin.unwrap().get_welcome().unwrap();
 
-        let welcome_fn = plugins.get_symbol::<fn() -> String>(lib, "welcome");
-        println!("{:?}", welcome_fn.unwrap());
+        // let welcome_fn = plugins.get_symbol::<fn() -> String>(lib, "welcome");
+        unsafe {
+            println!("{:?}", welcome_fn());
+        }
+        // welcome_fn
     }
+
+    // plugins.reset();
 
     println!("Map");
-    let mut map = Map::new();
-
-    for i in 0..100 {
-        // println!("{:?}", i);
-        let map_section = map.get_map_section(Location::new(i, 0), 60);
-        // println!("{}", i);
-        map_section.print();
-        thread::sleep(Duration::from_millis(30))
-    }
+    // let mut map = Map::new();
+    //
+    // for i in 0..100 {
+    //     // println!("{:?}", i);
+    //     let map_section = map.get_map_section(Location::new(i, 0), 40);
+    //     // println!("{}", i);
+    //     map_section.print();
+    //     thread::sleep(Duration::from_millis(30))
+    // }
 
 
 

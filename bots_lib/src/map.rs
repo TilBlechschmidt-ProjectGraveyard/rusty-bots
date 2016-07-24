@@ -49,7 +49,7 @@ fn generate_tile(loc: Location, seed: u32) -> Tile { // TODO implement generator
 
     if val < 0.0 {
         Tile::new(TileType::Water)
-    } else if val < 0.5 {
+    } else if val < 0.4 {
         Tile::new(TileType::Plain)
     } else {
         Tile::new(TileType::Rock)
