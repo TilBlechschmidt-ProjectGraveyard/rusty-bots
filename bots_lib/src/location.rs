@@ -126,3 +126,17 @@ impl Mul<Coordinate> for Location {
         self*(_rhs, _rhs)
     }
 }
+
+impl Mul<(f64, f64)> for Location {
+    type Output = Location;
+    fn mul(self, _rhs: (f64, f64)) -> Location {
+        self * (_rhs.0 as Coordinate, _rhs.1 as Coordinate)
+    }
+}
+
+impl Mul<f64> for Location {
+    type Output = Location;
+    fn mul(self, _rhs: f64) -> Location {
+        self * (_rhs, _rhs)
+    }
+}
