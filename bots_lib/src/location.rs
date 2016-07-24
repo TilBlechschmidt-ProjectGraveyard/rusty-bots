@@ -4,7 +4,7 @@ use std::ops::{Add, Div, Mul};
 pub type Coordinate = i32;
 
 /// Distance between two `Location`s
-pub type Distance = f32;
+pub type Distance = f64;
 
 /// Default enum to save directions
 #[allow(missing_docs)]
@@ -73,6 +73,15 @@ impl Add<Direction> for Location {
             Direction::DownLeft => { self.x -= 1; self.y += 1; }
             Direction::DownRight => { self.x += 1; self.y += 1; }
         }
+        self
+    }
+}
+
+impl Add for Location {
+    type Output = Location;
+    fn add(mut self, _rhs: Location) -> Location {
+        self.x += _rhs.x;
+        self.y += _rhs.y;
         self
     }
 }
