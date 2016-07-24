@@ -3,6 +3,8 @@
 
 extern crate rand;
 extern crate noise;
+extern crate bincode;
+extern crate rustc_serialize;
 
 /// Module to save locations.
 pub mod location;
@@ -10,3 +12,5 @@ pub mod location;
 pub mod map;
 /// Module to save the creep objects.
 pub mod creep;
+/// Module for memorys used in the game.
+pub mod memory;

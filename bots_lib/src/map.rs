@@ -4,7 +4,7 @@ use std::ops::{Add, Sub};
 use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
 use noise::{Brownian2, Seed, perlin2};
-use creep::ServerCreep;
+use creep::{ServerCreep, User, Creep};
 
 
 const CHUNK_SIZE: Coordinate = 10;
@@ -68,6 +68,7 @@ fn generate_tile(loc: Location, seed: u32) -> TileType {
 pub struct Map {
     seed: u32,
     chunks: HashMap<Location, Chunk>,
+    pub users: HashMap<ID, User>,
     creeps: HashMap<ID, ServerCreep>,
     last_id: ID
 }
@@ -85,8 +86,48 @@ impl Map {
         Map {
             seed: seed,
             chunks: HashMap::new(),
+            users: HashMap::new(),
             creeps: HashMap::new(),
             last_id: 0
+        }
+    }
+
+    /// Returns the next free id.
+    fn get_next_id(&mut self) -> ID {
+        self.last_id += 1;
+        return self.last_id
+    }
+
+    /// Adds a new user.
+    pub fn add_user(&mut self, user: User) -> ID {
+        let user_id = self.get_next_id();
+        self.users.insert(user_id, user);
+        user_id
+    }
+
+    pub fn get_user_creeps(&self, user_id: ID) -> Option<Vec<Creep>> {
+        match self.users.get(&user_id) {
+            Some(user) => {
+                // println!("{:?}", user.creeps);
+                Some(user.creeps.iter().map(|creep_id| {
+                    let server_creep = self.creeps.get(creep_id).unwrap();
+                    Creep::new(server_creep.location, user.print_sender.clone())
+                }).collect())
+            },
+            None => None
+        }
+    }
+
+    /// Adds a new creep.
+    pub fn add_creep(&mut self, creep: ServerCreep) -> Option<ID> {
+        let creep_id = self.get_next_id();
+        match self.users.get_mut(&creep.user_id) {
+            Some(user) => {
+                self.creeps.insert(creep_id, creep);
+                user.creeps.push(creep_id);
+                Some(creep_id)
+            },
+            None => None
         }
     }
 
@@ -112,12 +153,6 @@ impl Map {
         self.get_chunk(loc).creeps.push(id);
 
         true
-    }
-
-    /// Returns the next free id
-    pub fn get_id(&mut self) -> ID {
-        self.last_id += 1;
-        return self.last_id
     }
 
     fn get_chunk(&mut self, loc: Location) -> &mut Chunk {
