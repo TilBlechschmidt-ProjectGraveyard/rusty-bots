@@ -38,13 +38,19 @@ impl Location {
         }
     }
 
-    /// Calculate the distance between two arbitrary locations
+    /// Calculate the square of the distance between two arbitrary locations
     #[allow(non_snake_case)]
-    pub fn linear_distance_to(&self, other: &Location) -> Distance {
+    pub fn linear_distance_squared_to(&self, other: &Location) -> Distance {
         let Δx = (self.x - other.x).abs() as Distance;
         let Δy = (self.y - other.y).abs() as Distance;
 
-        ( Δx.powf(2.0) + Δy.powf(2.0) ).sqrt()
+        Δx * Δx + Δy * Δy
+    }
+
+    /// Calculate the distance between two arbitrary locations
+    #[allow(non_snake_case)]
+    pub fn linear_distance_to(&self, other: &Location) -> Distance {
+        self.linear_distance_squared_to(other).sqrt()
     }
 
     /// Calculate the walking distance (via pathfinding) between two arbitrary location

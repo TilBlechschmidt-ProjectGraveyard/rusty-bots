@@ -10,6 +10,9 @@ mod plugin_handler;
 use bots_lib::map::Map;
 use bots_lib::location::Location;
 
+use std::time::Duration;
+use std::thread;
+
 
 const PLUGIN_PATH: &'static str = "user";
 const LIB_PREFIX: &'static str = "lib";
@@ -23,14 +26,19 @@ fn main() {
         plugins.load(lib.clone());
 
         let welcome_fn = plugins.get_symbol::<fn() -> String>(lib, "welcome");
-        println!("{:?}", welcome_fn.unwrap()());
+        println!("{:?}", welcome_fn.unwrap());
     }
 
     println!("Map");
     let mut map = Map::new();
 
-    let map_section = map.get_map_section(Location::new(0, 0), 40);
-    map_section.print();
+    for i in 0..100 {
+        println!("{:?}", i);
+        let map_section = map.get_map_section(Location::new(0, 0), 60);
+        // println!("{}", i);
+        // map_section.print();
+        // thread::sleep(Duration::from_millis(10))
+    }
 
 
 
