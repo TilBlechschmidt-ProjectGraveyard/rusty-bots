@@ -122,9 +122,9 @@ impl Map {
         // let mut result2 = Vec::new();
         let radius_squared = (radius * radius) as Distance;
 
-        for Δx in -radius..radius+1 {
-            for Δy in -radius..radius+1 {
-                let loc = location + (Δx, Δy);
+        for delta_x in -radius..radius+1 {
+            for delta_y in -radius..radius+1 {
+                let loc = location + (delta_x, delta_y);
                 if location.linear_distance_squared_to(&loc) <= radius_squared {
                     let tile = self.get_tile(loc).clone(); //TODO This is slow
                     result.insert(loc, tile);
@@ -165,16 +165,16 @@ impl MapSection {
 
     #[allow(non_snake_case, missing_docs)]
     pub fn print(&self) {
-        for Δy in -self.radius..self.radius+1 {
+        for delta_y in -self.radius..self.radius+1 {
             let mut line = String::with_capacity(self.radius as usize * 2 + 1);
-            for Δx in -self.radius..self.radius+1 {
-                let loc = self.center + (Δx, Δy);
+            for delta_x in -self.radius..self.radius+1 {
+                let loc = self.center + (delta_x, delta_y);
                 line = line + match self.get_tile(loc) {
                     Some(tile) => {
                         match tile.tile_type {
                             TileType::Plain => "__",
                             TileType::Water => "~~",
-                            TileType::Rock => "ΔΔ"
+                            TileType::Rock => "delta_delta_"
                         }
                     },
                     None => "  "

@@ -41,10 +41,10 @@ impl Location {
     /// Calculate the square of the distance between two arbitrary locations
     #[allow(non_snake_case)]
     pub fn linear_distance_squared_to(&self, other: &Location) -> Distance {
-        let Δx = (self.x - other.x).abs() as Distance;
-        let Δy = (self.y - other.y).abs() as Distance;
+        let delta_x = (self.x - other.x).abs() as Distance;
+        let delta_y = (self.y - other.y).abs() as Distance;
 
-        Δx * Δx + Δy * Δy
+        delta_x * delta_x + delta_y * delta_y
     }
 
     /// Calculate the distance between two arbitrary locations
