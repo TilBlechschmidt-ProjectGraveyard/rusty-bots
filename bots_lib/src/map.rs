@@ -1,8 +1,10 @@
-
+use rand::{Rng, thread_rng};
 use std::ops::Add;
+
 use std::collections::HashMap;
 use location::{Location, Distance, Coordinate};
 use noise::{Brownian2, Seed, perlin2};
+
 
 const CHUNK_SIZE: Coordinate = 10;
 
@@ -44,7 +46,7 @@ impl Chunk {
     }
 }
 
-fn generate_tile(loc: Location, seed: u32) -> Tile { // TODO implement generator
+fn generate_tile(loc: Location, seed: u32) -> Tile {
     let seed = Seed::new(seed);
     let noise = Brownian2::new(perlin2, 4).wavelength(64.0);
     let val = noise.apply(&seed, &[loc.x as f32, loc.y as f32]);
@@ -69,8 +71,10 @@ pub struct Map {
 impl Map {
     /// Creates an empty `Map`.
     pub fn new() -> Map {
+        let seed = thread_rng().next_u32();
+        println!("Generated map w/ seed {}", seed);
         Map {
-            seed: 3, //TODO random seed
+            seed: seed,
             chunks: HashMap::new()
         }
     }
